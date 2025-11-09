@@ -1,0 +1,65 @@
+{
+  "curry|épicé|thaï|mexicain|tandoori|piment": [
+    "blanc aromatique demi-sec",
+    "rosé vif",
+    "rouge léger peu tannique"
+  ],
+  "poisson|crustacé|huître|saumon|thon|cabillaud|sole|saint-jacques": [
+    "blanc vif",
+    "blanc minéral",
+    "effervescent brut"
+  ],
+  "volaille|poulet|dinde|canard|magret|chapon": [
+    "rouge léger",
+    "rouge moyen",
+    "blanc boisé"
+  ],
+  "bœuf|boeuf|agneau|gibier|entrecôte|côte de bœuf": [
+    "rouge structuré tannique",
+    "rouge puissant"
+  ],
+  "charcuterie|tapas|apéritif": [
+    "rouge léger",
+    "rosé gastronomique",
+    "effervescent brut"
+  ],
+  "pâtes|pizza|lasagne|bolognaise|tomate": [
+    "rouge méditerranéen",
+    "rouge moyen",
+    "rosé vif"
+  ],
+  "fromage pâte dure|comté|gruyère|beaufort": [
+    "blanc jurassien",
+    "rouge léger",
+    "oxydatif"
+  ],
+  "fromage pâte molle|camembert|brie|coulommiers": [
+    "rouge léger",
+    "cidre/alternative",
+    "effervescent brut"
+  ],
+  "dessert chocolat|fondant|mousse chocolat": [
+    "rouge doux",
+    "vin doux naturel",
+    "porto/tawny"
+  ],
+  "dessert fruit|tarte|agrumes": [
+    "liquoreux",
+    "demi-sec effervescent"
+  ],
+  "sushi|sashimi|japonais|wasabi": [
+    "blanc vif",
+    "blanc minéral",
+    "effervescent brut"
+  ],
+  "bbq|barbecue|grillé|fumé": [
+    "rouge puissant",
+    "rouge structuré tannique",
+    "rosé gastronomique"
+  ],
+  "végétarien|légumes grillés|salade|ratatouille|falafel": [
+    "blanc vif",
+    "rouge léger",
+    "orange"
+  ]
+}
