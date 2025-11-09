@@ -1,9 +1,9 @@
-// /api/pairing.js — Vercel (CommonJS) + CORS robuste (prévol)
-// Autorise le domaine appelant et gère correctement le preflight OPTIONS.
+// /api/pairing.js — Vercel Serverless Function (CommonJS) avec CORS robuste + OpenAI
 
-let KB_CACHE = { loaded:false, dish_to_styles:{}, style_to_appellations:{}, synonyms:{} };
+let KB_CACHE = { loaded: false, dish_to_styles: {}, style_to_appellations: {}, synonyms: {} };
 
-async function loadKB(req){
+// --- CHARGEMENT BASE DE CONNAISSANCE ---
+async function loadKB(req) {
   if (KB_CACHE.loaded) return KB_CACHE;
   const host = req?.headers?.host || "";
   const proto = req?.headers?.["x-forwarded-proto"] || "https";
@@ -11,156 +11,178 @@ async function loadKB(req){
   const urls = {
     dish_to_styles: `${base}/dish_to_styles.json`,
     style_to_appellations: `${base}/style_to_appellations.json`,
-    synonyms: `${base}/synonyms.json`
+    synonyms: `${base}/synonyms.json`,
   };
   const [d2s, s2a, syn] = await Promise.all([
-    fetch(urls.dish_to_styles).then(r=>r.json()),
-    fetch(urls.style_to_appellations).then(r=>r.json()),
-    fetch(urls.synonyms).then(r=>r.json()),
+    fetch(urls.dish_to_styles).then((r) => r.json()),
+    fetch(urls.style_to_appellations).then((r) => r.json()),
+    fetch(urls.synonyms).then((r) => r.json()),
   ]);
-  KB_CACHE = { loaded:true, dish_to_styles:d2s, style_to_appellations:s2a, synonyms:syn };
+  KB_CACHE = { loaded: true, dish_to_styles: d2s, style_to_appellations: s2a, synonyms: syn };
   return KB_CACHE;
 }
 
-function normalize(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); }
-function expandWithSynonyms(q, synonyms){
+// --- OUTILS ---
+function normalize(s) {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+}
+
+function expandWithSynonyms(q, synonyms) {
   const bag = new Set([q]);
-  Object.entries(synonyms||{}).forEach(([root, alts])=>{
-    if (q.includes(root)) alts.forEach(a=>bag.add(q.replace(root,a)));
-    alts.forEach(a=>{ if(q.includes(a)) bag.add(q.replace(a,root)); });
+  Object.entries(synonyms || {}).forEach(([root, alts]) => {
+    if (q.includes(root)) alts.forEach((a) => bag.add(q.replace(root, a)));
+    alts.forEach((a) => {
+      if (q.includes(a)) bag.add(q.replace(a, root));
+    });
   });
   return Array.from(bag);
 }
-function pickFirstMatch(query, rulesObj){
-  for (const pattern in rulesObj){ if (new RegExp(pattern,'i').test(query)) return rulesObj[pattern]; }
+
+function pickFirstMatch(query, rulesObj) {
+  for (const pattern in rulesObj) {
+    if (new RegExp(pattern, "i").test(query)) return rulesObj[pattern];
+  }
   return [];
 }
-async function buildKB(mode, query, req){
-  const { dish_to_styles, style_to_appellations, synonyms } = await loadKB(req);
-  const kb = { styles:[], appellations:[] };
-  const base = normalize(query||''); if(!base) return kb;
 
-  if (mode==='dish'){
-    for (const cand of expandWithSynonyms(base, synonyms||{})){
+// --- CONSTRUCTION DU KB ---
+async function buildKB(mode, query, req) {
+  const { dish_to_styles, style_to_appellations, synonyms } = await loadKB(req);
+  const kb = { styles: [], appellations: [] };
+  const base = normalize(query || "");
+  if (!base) return kb;
+
+  if (mode === "dish") {
+    for (const cand of expandWithSynonyms(base, synonyms || {})) {
       const styles = pickFirstMatch(cand, dish_to_styles);
-      if (styles?.length){
+      if (styles?.length) {
         kb.styles = styles;
-        kb.appellations = styles.flatMap(s=>style_to_appellations[s]||[]).slice(0,20);
+        kb.appellations = styles.flatMap((s) => style_to_appellations[s] || []).slice(0, 20);
         break;
       }
     }
-  } else if (mode==='wine'){
+  } else if (mode === "wine") {
     const wineHints = [
-      { re:/\bpinot\s*noir|beaujolais|bourgogne\b/i, styles:["rouge léger"] },
-      { re:/\bchardonnay|meursault|pouilly-?fuiss[eé]\b/i, styles:["blanc boisé"] },
-      { re:/\bsauvignon|sancerre|pouilly-?fum[eé]\b/i, styles:["blanc vif"] },
-      { re:/\briesling|alsace\b/i, styles:["blanc vif","blanc minéral"] },
-      { re:/\bsyrah|cornas|côte[-\s]?rôtie|saint[-\s]?joseph\b/i, styles:["rouge puissant"] },
-      { re:/\bgrenache|châteauneuf|sud\b/i, styles:["rouge méditerranéen","rouge puissant"] },
-      { re:/\bmadiran|cahors|tannat\b/i, styles:["rouge structuré tannique"] },
-      { re:/\bchampagne|crémant|effervescent\b/i, styles:["effervescent brut"] },
+      { re: /\bpinot\s*noir|beaujolais|bourgogne\b/i, styles: ["rouge léger"] },
+      { re: /\bchardonnay|meursault|pouilly-?fuiss[eé]\b/i, styles: ["blanc boisé"] },
+      { re: /\bsauvignon|sancerre|pouilly-?fum[eé]\b/i, styles: ["blanc vif"] },
+      { re: /\briesling|alsace\b/i, styles: ["blanc vif", "blanc minéral"] },
+      { re: /\bsyrah|cornas|côte[-\s]?rôtie|saint[-\s]?joseph\b/i, styles: ["rouge puissant"] },
+      { re: /\bgrenache|châteauneuf|sud\b/i, styles: ["rouge méditerranéen", "rouge puissant"] },
+      { re: /\bmadiran|cahors|tannat\b/i, styles: ["rouge structuré tannique"] },
+      { re: /\bchampagne|crémant|effervescent\b/i, styles: ["effervescent brut"] },
     ];
-    for (const hint of wineHints){
-      if (hint.re.test(query)){
+    for (const hint of wineHints) {
+      if (hint.re.test(query)) {
         kb.styles = hint.styles;
-        kb.appellations = hint.styles.flatMap(s=>style_to_appellations[s]||[]).slice(0,20);
+        kb.appellations = hint.styles.flatMap((s) => style_to_appellations[s] || []).slice(0, 20);
         break;
       }
     }
   }
   return kb;
 }
-function fallbackFromKB(kb, s2a){
+
+function fallbackFromKB(kb, s2a) {
   if (!kb.styles?.length) return null;
-  const titles = ["Classic pairing","Bold pairing","Terroir pairing"];
+  const titles = ["Accord classique", "Accord audacieux", "Accord terroir"];
   return {
-    suggestions: kb.styles.slice(0,3).map((style,i)=>({
-      title: titles[i]||"Suggestion",
+    suggestions: kb.styles.slice(0, 3).map((style, i) => ({
+      title: titles[i] || "Suggestion",
       pairing: style,
-      why: "Based on internal dish/style/appellation matching.",
+      why: "Basé sur notre base de connaissance interne (styles et appellations françaises).",
       serving_temp: /blanc|rosé|effervescent|cidre/i.test(style) ? "8–12°C" : "16–18°C",
-      notes: (s2a?.[style]||[]).slice(0,3)
+      notes: (s2a?.[style] || []).slice(0, 3),
     })),
-    disclaimer: "Indicative suggestions – please enjoy responsibly."
+    disclaimer: "Suggestions indicatives — à consommer avec modération.",
   };
 }
 
-// --------- HANDLER (CommonJS) ---------
-module.exports = async function handler(req, res){
-  // 🔐 CORS robuste (préflight)
+// --------- HANDLER PRINCIPAL ---------
+module.exports = async function handler(req, res) {
+  // ✅ CORS robuste
   const origin = req.headers.origin || "*";
-  const reqHeaders = req.headers["access-control-request-headers"] || "Content-Type, Authorization";
-  res.setHeader("Access-Control-Allow-Origin", origin);               // renvoie l’origine appelante
-  res.setHeader("Vary", "Origin");                                    // pour que Vercel ne réutilise pas de cache
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  const reqHeaders = req.headers["access-control-request-headers"] || "Content-Type";
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin, Access-Control-Request-Headers, Access-Control-Request-Method");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", reqHeaders);
   res.setHeader("Access-Control-Max-Age", "86400");
 
-  if (req.method === "OPTIONS"){
-    // Répondre au prévol immédiatement avec les en-têtes CORS
-    return res.status(204).end();
+  if (req.method === "OPTIONS") {
+    return res.status(200).json({ ok: true, cors: "preflight" });
   }
 
-  if (req.method !== "POST"){
-    return res.status(200).json({ ok:true, hint:"POST a JSON body {mode, query, prefs}" });
+  if (req.method !== "POST") {
+    return res.status(200).json({ ok: true, hint: "POST a JSON body {mode, query, prefs}" });
   }
 
-  try{
+  try {
     const { mode, query, prefs } = req.body || {};
-    if (!mode || !query) return res.status(400).json({ error:"Missing params" });
+    if (!mode || !query) return res.status(400).json({ error: "Missing params" });
 
     const { style_to_appellations } = await loadKB(req);
     const kb = await buildKB(mode, query, req);
 
     const systemPrompt = [
-      "You are a professional French sommelier.",
-      "- If input is a wine: suggest 3 DISHES (classic, bold, terroir).",
-      "- If input is a dish: suggest 3 WINE STYLES and 1–2 French APPELLATIONS.",
-      `- Prioritize internal knowledge base (styles/appellations): ${JSON.stringify(kb)}.`,
-      '- Respond strictly in JSON: {"suggestions":[...]}',
-      "Respond in French only."
+      "Tu es un sommelier professionnel français.",
+      "- Si l’entrée est un vin : suggère 3 plats (classique, audacieux, terroir).",
+      "- Si l’entrée est un plat : suggère 3 styles de vin + 1 ou 2 appellations françaises.",
+      `- Priorise la base interne : ${JSON.stringify(kb)}.`,
+      'Réponds strictement au format JSON : {"suggestions":[...]}',
+      "Réponds en français uniquement.",
     ].join(" ");
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error:"Missing OPENAI_API_KEY" });
+    if (!apiKey) return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
 
-    const llm = await fetch("https://api.openai.com/v1/chat/completions",{
-      method:"POST",
-      headers:{ Authorization:`Bearer ${apiKey}`, "Content-Type":"application/json" },
+    const llm = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model:"gpt-4o-mini",
-        messages:[
-          { role:"system", content:systemPrompt },
-          { role:"user", content: JSON.stringify({ mode, query, prefs }) }
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: JSON.stringify({ mode, query, prefs }) },
         ],
-        response_format:{ type:"json_object" },
-        temperature:0.7,
-        max_tokens:700
-      })
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 700,
+      }),
     });
 
-    if (!llm.ok){
-      const txt = await llm.text().catch(()=> "");
+    if (!llm.ok) {
+      const txt = await llm.text().catch(() => "");
       const fb = fallbackFromKB(kb, style_to_appellations);
       if (fb) return res.status(200).json(fb);
-      return res.status(500).json({ error:"LLM error", details:txt.slice(0,600) });
+      return res.status(500).json({ error: "LLM error", details: txt.slice(0, 600) });
     }
 
     const data = await llm.json();
     let content = data?.choices?.[0]?.message?.content || "{}";
-    let parsed; try { parsed = JSON.parse(content); } catch { parsed = {}; }
-
-    if (!Array.isArray(parsed.suggestions) || !parsed.suggestions.length){
-      const fb = fallbackFromKB(kb, style_to_appellations);
-      if (fb) return res.status(200).json(fb);
-      return res.status(200).json({ suggestions:[], disclaimer:"Indicative suggestions – please enjoy responsibly." });
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      parsed = {};
     }
 
-    parsed.disclaimer = "Indicative suggestions – please enjoy responsibly.";
-    res.setHeader("Cache-Control","no-store");
-    return res.status(200).json(parsed);
+    if (!Array.isArray(parsed.suggestions) || !parsed.suggestions.length) {
+      const fb = fallbackFromKB(kb, style_to_appellations);
+      if (fb) return res.status(200).json(fb);
+      return res.status(200).json({
+        suggestions: [],
+        disclaimer: "Suggestions indicatives — à consommer avec modération.",
+      });
+    }
 
-  }catch(err){
-    return res.status(500).json({ error:"Server crash", message: err?.message || String(err) });
+    parsed.disclaimer = "Suggestions indicatives — à consommer avec modération.";
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(200).json(parsed);
+  } catch (err) {
+    return res.status(500).json({ error: "Server crash", message: err?.message || String(err) });
   }
 };
