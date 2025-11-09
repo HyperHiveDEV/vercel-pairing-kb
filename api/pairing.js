@@ -1,10 +1,7 @@
 // /api/pairing.js — Vercel Serverless (Node 18+)
-// npm i cross-fetch
-import fetch from "cross-fetch";
+// ✅ CommonJS version — compatible with Vercel’s Node runtime
+// No import/export syntax (uses module.exports)
 
-/* =========================
-   0) Chargement KB externe + cache
-   ========================= */
 let KB_CACHE = { loaded: false, dish_to_styles:{}, style_to_appellations:{}, synonyms:{} };
 
 async function loadKB(req) {
@@ -26,9 +23,6 @@ async function loadKB(req) {
   return KB_CACHE;
 }
 
-/* =========================
-   1) Utilitaires KB
-   ========================= */
 function normalize(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); }
 
 function expandWithSynonyms(q, synonyms) {
@@ -88,23 +82,21 @@ async function buildKB(mode, query, req) {
 
 function fallbackFromKB(kb, s2a) {
   if (!kb.styles?.length) return null;
-  const titles = ["Accord classique","Accord audacieux","Accord terroir"];
+  const titles = ["Classic pairing","Bold pairing","Terroir pairing"];
   return {
     suggestions: kb.styles.slice(0,3).map((style,i)=>({
       title: titles[i] || "Suggestion",
       pairing: style,
-      why: "Basé sur les correspondances internes plat/style/appellations.",
+      why: "Based on internal dish/style/appellation matching.",
       serving_temp: /blanc|rosé|effervescent|cidre/i.test(style) ? "8–12°C" : "16–18°C",
       notes: (s2a?.[style] || []).slice(0, 3)
     })),
-    disclaimer: "Suggestions indicatives – à consommer avec modération."
+    disclaimer: "Indicative suggestions – please enjoy responsibly."
   };
 }
 
-/* =========================
-   2) Handler Vercel
-   ========================= */
-export default async function handler(req, res) {
+// ✅ CommonJS export — required for Vercel
+module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "*";
   res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Vary", "Origin");
@@ -112,8 +104,9 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   if (req.method === "OPTIONS") return res.status(204).end();
 
+  // 🧩 Quick GET check instead of 405
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(200).json({ ok: true, hint: "POST a JSON body {mode, query, prefs}" });
   }
 
   try {
@@ -124,14 +117,12 @@ export default async function handler(req, res) {
     const kb = await buildKB(mode, query, req);
 
     const systemPrompt = [
-      "Tu es un sommelier professionnel.",
-      "- Si l’entrée est un vin : propose 3 PLATS (classique, audacieux, terroir).",
-      "- Si l’entrée est un plat : propose 3 STYLES de vins et 1–2 APPELLATIONS françaises.",
-      `- Utilise en PRIORITÉ, si fournie, la base interne (styles/appellations) : ${JSON.stringify(kb)}.`,
-      '- Pour CHAQUE suggestion retourne : "title", "pairing" (plat ou vin/style), "why", "serving_temp", "notes" (array).',
-      '- Réponds en JSON strict : {"suggestions":[...]} — pas de texte hors JSON.',
-      "- Jamais d’allégations médicales. Ajoute rien d’autre.",
-      "Réponds en français."
+      "You are a professional French sommelier.",
+      "- If input is a wine: suggest 3 DISHES (classic, bold, terroir).",
+      "- If input is a dish: suggest 3 WINE STYLES and 1–2 French APPELLATIONS.",
+      `- Prioritize internal knowledge base (styles/appellations): ${JSON.stringify(kb)}.`,
+      '- Respond strictly in JSON: {"suggestions":[...]}',
+      "Respond in French only."
     ].join(" ");
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -166,20 +157,19 @@ export default async function handler(req, res) {
 
     const data = await llm.json();
     const content = data?.choices?.[0]?.message?.content || "{}";
-
     let parsed;
     try { parsed = JSON.parse(content); } catch { parsed = {}; }
 
     if (!Array.isArray(parsed.suggestions) || !parsed.suggestions.length) {
       const fb = fallbackFromKB(kb, style_to_appellations);
       if (fb) return res.status(200).json(fb);
-      return res.status(200).json({ suggestions: [], disclaimer: "Suggestions indicatives – à consommer avec modération." });
+      return res.status(200).json({ suggestions: [], disclaimer: "Indicative suggestions – please enjoy responsibly." });
     }
 
-    parsed.disclaimer = "Suggestions indicatives – à consommer avec modération.";
+    parsed.disclaimer = "Indicative suggestions – please enjoy responsibly.";
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json(parsed);
   } catch (err) {
     return res.status(500).json({ error: "Server crash", message: err?.message || String(err) });
   }
-}
+};
