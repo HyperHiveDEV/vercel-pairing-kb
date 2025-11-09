@@ -1,25 +1,23 @@
-// --- FIX CORS FOR WEBFLOW ---
-// ✅ Autorise uniquement ton domaine Webflow
-const ALLOWED_ORIGIN = "https://la-boni-cave.webflow.io";
-
 export default async function handler(req, res) {
+  // ✅ Gère CORS manuellement, sans middleware
   const origin = req.headers.origin;
+  const allowedOrigin = "https://la-boni-cave.webflow.io";
 
-  // ✅ Ajoute dynamiquement les bons headers
-  if (origin === ALLOWED_ORIGIN || origin === "http://localhost:3000") {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
+  // ✅ Ajoute toujours ces headers
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    origin === allowedOrigin || origin === "http://localhost:3000" ? origin : "*"
+  );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // ✅ Répond directement aux requêtes preflight (OPTIONS)
+  // ✅ Répond immédiatement aux requêtes de prévol (OPTIONS)
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // ✅ Refuse toute autre méthode que POST
+  // ✅ Vérifie la méthode
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
