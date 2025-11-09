@@ -1,6 +1,5 @@
-// /api/pairing.js — Vercel Serverless (Node 18+)
-// ✅ CommonJS version — compatible with Vercel’s Node runtime
-// No import/export syntax (uses module.exports)
+// /api/pairing.js — version finale pour Vercel (CommonJS)
+// Compatible Webflow + OpenAI GPT-4o-mini
 
 let KB_CACHE = { loaded: false, dish_to_styles:{}, style_to_appellations:{}, synonyms:{} };
 
@@ -97,14 +96,15 @@ function fallbackFromKB(kb, s2a) {
 
 // ✅ CommonJS export — required for Vercel
 module.exports = async function handler(req, res) {
-  const origin = req.headers.origin || "*";
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Vary", "Origin");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  // 🔒 Autorise ton domaine Webflow pour éviter les erreurs CORS
+  const allowedOrigin = "https://labonicave.webflow.io"; // ← ton site Webflow
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Vary", "Origin");
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  // 🧩 Quick GET check instead of 405
+  // GET check
   if (req.method !== "POST") {
     return res.status(200).json({ ok: true, hint: "POST a JSON body {mode, query, prefs}" });
   }
