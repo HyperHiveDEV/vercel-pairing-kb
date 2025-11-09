@@ -1,0 +1,50 @@
+{
+  "piment": [
+    "épicé",
+    "piquant",
+    "spicy"
+  ],
+  "bœuf": [
+    "boeuf",
+    "viande rouge",
+    "steak"
+  ],
+  "volaille": [
+    "poulet",
+    "dinde",
+    "chapon",
+    "magret"
+  ],
+  "poisson": [
+    "saumon",
+    "cabillaud",
+    "thon",
+    "sole",
+    "saint-jacques"
+  ],
+  "fromage pâte dure": [
+    "comté",
+    "gruyère",
+    "beaufort"
+  ],
+  "fromage pâte molle": [
+    "camembert",
+    "brie",
+    "coulommiers"
+  ],
+  "bbq": [
+    "barbecue",
+    "grillé",
+    "fumé"
+  ],
+  "pâtes": [
+    "pasta",
+    "spaghetti",
+    "penne"
+  ],
+  "dessert": [
+    "sucré",
+    "gâteau",
+    "tarte"
+  ]
+}
