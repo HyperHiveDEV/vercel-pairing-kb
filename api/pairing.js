@@ -1,15 +1,19 @@
-export default async function handler(req, res) {
-  // ✅ Autorise tous les domaines (ou remplace * par ton domaine Webflow)
+// --- CORS FIX GLOBAL ---
+function handleCors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  // ✅ Répond immédiatement au preflight OPTIONS
   if (req.method === "OPTIONS") {
-    return res.status(200).json({ ok: true });
+    res.status(200).end();
+    return true; // stop further execution
   }
+  return false;
+}
 
-  // ✅ Refuse les autres méthodes
+export default async function handler(req, res) {
+  // ✅ Gère CORS avant tout
+  if (handleCors(req, res)) return;
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -20,7 +24,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing query" });
     }
 
-    // ✅ Exemple de réponse simulée pour test
+    // ✅ Exemple statique de réponse
     return res.status(200).json({
       ok: true,
       suggestions: [
