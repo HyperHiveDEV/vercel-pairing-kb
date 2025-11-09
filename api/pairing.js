@@ -1,19 +1,25 @@
-// --- CORS FIX GLOBAL ---
-function handleCors(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return true; // stop further execution
-  }
-  return false;
-}
+// --- FIX CORS FOR WEBFLOW ---
+// ✅ Autorise uniquement ton domaine Webflow
+const ALLOWED_ORIGIN = "https://la-boni-cave.webflow.io";
 
 export default async function handler(req, res) {
-  // ✅ Gère CORS avant tout
-  if (handleCors(req, res)) return;
+  const origin = req.headers.origin;
 
+  // ✅ Ajoute dynamiquement les bons headers
+  if (origin === ALLOWED_ORIGIN || origin === "http://localhost:3000") {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // ✅ Répond directement aux requêtes preflight (OPTIONS)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // ✅ Refuse toute autre méthode que POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -24,7 +30,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing query" });
     }
 
-    // ✅ Exemple statique de réponse
+    // ✅ Réponse simulée IA
     return res.status(200).json({
       ok: true,
       suggestions: [
