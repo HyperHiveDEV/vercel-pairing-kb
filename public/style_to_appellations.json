@@ -1,104 +1,98 @@
 {
   "blanc vif": [
-    "Sancerre",
-    "Pouilly-Fumé",
-    "Muscadet Sèvre-et-Maine",
-    "Entre-Deux-Mers",
-    "Reuilly",
-    "Menetou-Salon"
+    "CroqSilex – Pouilly-Fumé (Domaine Chauveau)",
+    "La Charmette – Sancerre (Domaine Chauveau)",
+    "Colombard-Sauvignon blanc – Côtes de Gascogne (Horgelus)",
+    "N°1 Littorine blanc – Domaine Haut Marin",
+    "N°2 Amande blanc – Domaine Haut Marin",
+    "Riesling blanc sec – Cave de Beblenheim"
   ],
   "blanc minéral": [
-    "Chablis",
-    "Chablis 1er Cru",
-    "Savoie Chignin",
-    "Pouilly-sur-Loire"
+    "Sainte Cécile blanc – Sancerre (Domaine Chauveau)",
+    "N°6 Fossiles blanc – Domaine Haut Marin",
+    "Bourgogne blanc Côte d’Or – Domaine Laboureau"
   ],
   "blanc aromatique demi-sec": [
-    "Gewurztraminer (Alsace)",
-    "Vouvray demi-sec",
-    "Jurançon",
-    "Pinot Gris (Alsace)"
+    "Gewurztraminer demi-sec – Cave de Beblenheim",
+    "N°7 Venus blanc – Domaine Haut Marin",
+    "N°8 Grand Pavois blanc – Domaine Haut Marin"
   ],
   "blanc boisé": [
-    "Meursault",
-    "Pouilly-Fuissé",
-    "Graves blanc",
-    "Côtes de Beaune blanc"
+    "Blanc excellence bio – Côtes d’Azur & Provence",
+    "AOP Côtes de Provence Hilarion blanc – Domaine du Cagueloup",
+    "AOP Bandol blanc – Domaines Ott",
+    "AOP Languedoc « le mas » blanc – Domaine de Fabrègues"
   ],
   "rosé vif": [
-    "Côtes de Provence",
-    "Tavel",
-    "Coteaux d’Aix-en-Provence",
-    "Coteaux Varois"
+    "Rosé bio – Côtes d’Azur & Provence",
+    "AOP Côtes de Provence Bae rosé – Domaine du Cagueloup",
+    "AOP Côtes de Provence Pierrefeu rosé – Domaine de la Portanière",
+    "N°3 Gulf Stream rosé – Domaine Haut Marin",
+    "Collection Fabrègues rosé – IGP Pays d’Hérault"
   ],
   "rosé gastronomique": [
-    "Bandol rosé",
-    "Tavel",
-    "Palette rosé"
+    "Château Romassan rosé – Bandol (Domaines Ott)",
+    "AOP Languedoc « l’orée » rosé – Domaine de Fabrègues",
+    "La petite folie rosé – Domaine de Fabrègues",
+    "Solstice d’été / Équinoxe rosé – Domaine de Fabrègues"
   ],
   "effervescent brut": [
-    "Champagne Brut",
-    "Crémant de Loire",
-    "Crémant de Bourgogne",
-    "Crémant d’Alsace"
+    "Rosé pétillant Céleste – Domaine de la Portanière"
   ],
   "rouge léger": [
-    "Beaujolais (Fleurie, Morgon)",
-    "Bourgogne Pinot Noir",
-    "Sancerre rouge",
-    "Reuilly rouge"
-  ],
-  "rouge léger peu tannique": [
-    "Beaujolais Villages",
-    "Bourgogne Pinot Noir"
+    "Pinot noir rouge – Cave de Beblenheim",
+    "IGP Ardèche grenache noir rosé/rouge – Domaine Audu (version rouge si dispo)",
+    "IGP Ardèche Cuvée Cadran rouge – Domaine Audu",
+    "Equilibre Cinsault rouge – Domaine de l’Arjolle"
   ],
   "rouge moyen": [
-    "Côtes-du-Rhône",
-    "Bordeaux Supérieur",
-    "Bourgueil",
-    "Chinon"
+    "Côtes-du-Rhône rouge – Maison Ogier",
+    "Cairanne rouge – Maison Ogier",
+    "Ventoux rosé / rouge – Maison Ogier (version rouge)",
+    "Monthelie rouge – Domaine Laboureau",
+    "Chorey-les-Beaunes rouge – Domaine Laboureau"
   ],
   "rouge structuré tannique": [
-    "Médoc",
-    "Pauillac",
-    "Madiran",
-    "Cahors"
+    "AOC Cahors « Clos d’Audhuy » rouge",
+    "AOC Cahors « LA-0 » rouge",
+    "AOP Faugères « Père à la minute » – Maison Jeanjean",
+    "AOP Terrasses du Larzac « extrême » – Domaine du Causse d’Arboras",
+    "AOP Saint-Chinian « l’arnaschiste » – Domaine du Landeyran",
+    "AOP Languedoc Grès de Montpellier « l’emblématique 1936 » – Jeanjean"
   ],
   "rouge puissant": [
-    "Châteauneuf-du-Pape",
-    "Bandol rouge",
-    "Cornas",
-    "Gigondas"
+    "Châteauneuf-du-Pape rouge – L’Oratoire des Papes",
+    "Gigondas rouge – Domaine la Brunely",
+    "Vacqueyras rouge – Domaine la Brunely",
+    "AOP Pic Saint Loup la Gravette – Vignes hautes tradition rouge",
+    "AOP Languedoc « l’orée » rouge – Domaine de Fabrègues"
   ],
   "rouge méditerranéen": [
-    "Côtes-du-Rhône Villages",
-    "Costières de Nîmes",
-    "Coteaux d’Aix-en-Provence"
+    "AOP Côtes de Provence Pierrefeu Portanier rouge – Domaine de la Portanière",
+    "AOP Côtes de Provence Pierrefeu Peyrol rouge – Domaine de la Portanière",
+    "AOP Pays d’Hérault « l’As de Coeur » rouge – Domaine de Fabrègues",
+    "IGP Côtes de Thongue « Paradoxe » rouge – Arjolle"
   ],
   "rouge doux": [
-    "Banyuls",
-    "Rivesaltes ambré"
+    "Toujours Plus rouge – Cahors Clos d’Audhuy"
   ],
   "vin doux naturel": [
-    "Maury",
-    "Banyuls",
-    "Muscat de Beaumes-de-Venise"
+    "AOC Cahors « La Pompette » rouge (profil plus gourmand, demi-sec)",
+    "Les Étonnants « Dernière cueillette » blanc – Domaine de l’Arjolle"
   ],
   "liquoreux": [
-    "Sauternes",
-    "Monbazillac",
-    "Jurançon moelleux"
+    "Gewurztraminer vendanges tardives – Cave de Beblenheim",
+    "Riesling vendanges tardives – Cave de Beblenheim"
   ],
   "oxydatif": [
-    "Vin Jaune (Arbois, Château-Chalon)"
+    "AOP Vin de style oxydatif non présent clairement sur la carte – à compléter plus tard"
   ],
   "orange": [
-    "Alsace (macération)",
-    "Jura (macération)",
-    "Roussillon (macération)"
+    "Brut de cuve Orange blanc – Domaine de l’Arjolle"
   ],
   "cidre/alternative": [
-    "Cidre brut",
-    "Poiré"
+    "Equilibre zéro blanc (sans alcool) – Domaine de l’Arjolle",
+    "Equilibre zéro rouge (sans alcool) – Domaine de l’Arjolle",
+    "Equilibre zéro rosé (sans alcool) – Domaine de l’Arjolle"
   ]
 }
